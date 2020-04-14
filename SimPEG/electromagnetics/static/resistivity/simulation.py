@@ -101,7 +101,7 @@ class BaseDCSimulation(BaseEMSimulation):
             if W is None:
                 self.gtgdiag = da.sum(self.getJ(m)**2, axis=0).compute()
             else:
-                w = da.from_array(W.diagonal())[:, None]
+                w = da.from_array(W.diagonal(), chunks=(W.diagonal().shape[0]))[:, None]
                 self.gtgdiag = da.sum((w*self.getJ(m))**2, axis=0).compute()
 
         return self.gtgdiag
@@ -566,11 +566,6 @@ class Simulation3DCellCentered(BaseDCSimulation):
 
         if self.storeJ:
             Gvec = self.Grad * u
-
-            # Div = da.from_array(
-            #         sparse.COO.from_scipy_sparse(self.Div.T),
-            #         chunks=(v.chunksize[0], v.chunksize[0]), asarray=False
-            # )
             Div = self.Div_dask
             if adjoint:
 
